@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 
 const LAST_SEARCH_KEY = "pokemon_last_search";
@@ -10,39 +10,39 @@ export function SearchInput() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const currentName = searchParams.get("name") ?? "";
-  const [value, setValue] = useState(currentName);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const didRestore = useRef(false);
 
-  // Sync input when URL changes (e.g. evolution click) and persist to localStorage
   useEffect(() => {
-    setValue(currentName);
     if (currentName) {
       localStorage.setItem(LAST_SEARCH_KEY, currentName);
     }
   }, [currentName]);
 
-  // On first load with no URL param, restore last search from localStorage
   useEffect(() => {
+    if (didRestore.current) return;
+    didRestore.current = true;
     if (!currentName) {
       const last = localStorage.getItem(LAST_SEARCH_KEY);
       if (last) {
         router.replace(`/?name=${encodeURIComponent(last)}`);
       }
     }
-  }, []);  // eslint-disable-line react-hooks/exhaustive-deps
+  }, [currentName, router]);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const trimmed = value.trim();
+    const trimmed = inputRef.current?.value.trim() ?? "";
     if (!trimmed) return;
-    const name = trimmed.toLowerCase();
-    router.push(`/?name=${encodeURIComponent(name)}`);
+    router.push(`/?name=${encodeURIComponent(trimmed.toLowerCase())}`);
   }
 
   return (
     <form onSubmit={handleSubmit} className="flex gap-2">
       <Input
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
+        key={currentName}
+        ref={inputRef}
+        defaultValue={currentName}
         placeholder="Search Pokémon (e.g. pikachu)"
         className="max-w-sm"
       />
