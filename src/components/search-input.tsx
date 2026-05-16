@@ -12,9 +12,12 @@ export function SearchInput() {
   const currentName = searchParams.get("name") ?? "";
   const [value, setValue] = useState(currentName);
 
-  // Sync input when URL changes (e.g. evolution click)
+  // Sync input when URL changes (e.g. evolution click) and persist to localStorage
   useEffect(() => {
     setValue(currentName);
+    if (currentName) {
+      localStorage.setItem(LAST_SEARCH_KEY, currentName);
+    }
   }, [currentName]);
 
   // On first load with no URL param, restore last search from localStorage
@@ -32,7 +35,6 @@ export function SearchInput() {
     const trimmed = value.trim();
     if (!trimmed) return;
     const name = trimmed.toLowerCase();
-    localStorage.setItem(LAST_SEARCH_KEY, name);
     router.push(`/?name=${encodeURIComponent(name)}`);
   }
 
