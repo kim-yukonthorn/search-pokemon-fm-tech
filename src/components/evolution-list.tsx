@@ -1,6 +1,4 @@
-"use client";
-
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { TypeBadge } from "@/components/type-badge";
 import type { PokemonEvolution } from "@/types/pokemon";
 import Image from "next/image";
@@ -10,8 +8,6 @@ export function EvolutionList({
 }: {
   evolutions: PokemonEvolution[];
 }) {
-  const router = useRouter();
-
   if (evolutions.length === 0) {
     return <p className="text-sm text-muted-foreground">No evolutions</p>;
   }
@@ -19,12 +15,10 @@ export function EvolutionList({
   return (
     <div className="flex flex-wrap gap-3">
       {evolutions.map((evo) => (
-        <button
+        <Link
           key={evo.id}
-          onClick={() =>
-            router.push(`/?name=${encodeURIComponent(evo.name.toLowerCase())}`)
-          }
-          className="flex flex-col items-center gap-1 p-3 rounded-lg border hover:bg-accent hover:border-primary transition-colors cursor-pointer"
+          href={`/?name=${encodeURIComponent(evo.name.toLowerCase())}`}
+          className="flex flex-col items-center gap-1 p-3 rounded-lg border hover:bg-accent hover:border-primary transition-colors"
         >
           <Image
             src={evo.image}
@@ -39,7 +33,7 @@ export function EvolutionList({
               <TypeBadge key={t} type={t} />
             ))}
           </div>
-        </button>
+        </Link>
       ))}
     </div>
   );
